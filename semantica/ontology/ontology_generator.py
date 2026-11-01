@@ -1263,6 +1263,8 @@ class SHACLGenerator:
         return value
 
     def _serialize_turtle(self, graph: SHACLGraph) -> str:
+        import json
+
         lines = [self._prefix_decls(graph), ""]
         lines.append(f"<{graph.shapes_uri}> a owl:Ontology .")
         lines.append("")
@@ -1297,7 +1299,18 @@ class SHACLGenerator:
                 if ps.max_count is not None:
                     parts.append(f"        sh:maxCount {ps.max_count} ;")
                 if ps.in_values is not None:
-                    vals = " ".join(f'"{v}"' for v in ps.in_values)
+                    # sh:in compares RDF terms: an untyped string does not
+                    # match an explicitly typed xsd:string in all validators.
+                    # Preserve the property's declared datatype and escape
+                    # lexical values rather than interpolating raw text.
+                    datatype = (
+                        "^^" + self._turtle_datatype(graph, ps.datatype)
+                        if ps.datatype else ""
+                    )
+                    vals = " ".join(
+                        json.dumps(str(v).lower() if isinstance(v, bool) else str(v), ensure_ascii=False)
+                        + datatype for v in ps.in_values
+                    )
                     parts.append(f"        sh:in ( {vals} ) ;")
                 if ps.has_value is not None:
                     parts.append(f"        sh:hasValue {self._uri(graph, ps.has_value)} ;")
