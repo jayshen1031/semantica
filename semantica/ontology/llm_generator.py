@@ -115,7 +115,7 @@ class LLMOntologyGenerator:
                     "uri": ensure_uri(pname, prop.get("uri") or prop.get("IRI")),
                     **{
                         key: deepcopy(prop[key])
-                        for key in ("required", "cardinality", "enum")
+                        for key in ("required", "cardinality", "enum", "pattern")
                         if key in prop
                     },
                 }
