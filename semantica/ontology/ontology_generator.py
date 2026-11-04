@@ -1277,10 +1277,9 @@ class SHACLGenerator:
                 f"    sh:targetClass {self._uri(graph, node_shape.target_class)} ;"
             )
             if node_shape.name:
-                block.append(f'    sh:name "{node_shape.name}" ;')
+                block.append(f'    sh:name {json.dumps(node_shape.name, ensure_ascii=False)} ;')
             if node_shape.description:
-                escaped = node_shape.description.replace('"', '\\"')
-                block.append(f'    sh:description "{escaped}" ;')
+                block.append(f'    sh:description {json.dumps(node_shape.description, ensure_ascii=False)} ;')
             if node_shape.closed:
                 block.append("    sh:closed true ;")
                 block.append("    sh:ignoredProperties ( <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ) ;")
@@ -1315,8 +1314,7 @@ class SHACLGenerator:
                 if ps.has_value is not None:
                     parts.append(f"        sh:hasValue {self._uri(graph, ps.has_value)} ;")
                 if ps.pattern:
-                    escaped_p = ps.pattern.replace('"', '\\"')
-                    parts.append(f'        sh:pattern "{escaped_p}" ;')
+                    parts.append(f'        sh:pattern {json.dumps(ps.pattern, ensure_ascii=False)} ;')
                 parts.append(f"        sh:severity sh:{ps.severity}")
                 parts.append("    ]" + terminator)
                 block.extend(parts)
